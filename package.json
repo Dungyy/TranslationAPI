@@ -1,0 +1,17 @@
+{
+  "name": "translationapi",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "bun index.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "express": "^5.0.0-beta.2"
+  }
+}

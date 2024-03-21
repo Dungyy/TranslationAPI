@@ -39,10 +39,10 @@ Follow these instructions to get Text Translator running on your local machine f
 
 ### Python
 ```sh
-python3 "<text_to_translate>" "<source_language>" "<target_language>"
+python3 "<file_to_translate>" "<source_language>" "<target_language>"
 ```
 ```
-example: python3 text_translator.py "Hello, World!" "en" "es"
+example: python3 translate_script.py example.txt en es 
 ```
 ### NodeJs
 

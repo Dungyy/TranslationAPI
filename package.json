@@ -1,5 +1,9 @@
 {
   "name": "translationapi",
+  "version": "0.0.1",
+  "date": "2024-21-03",
+  "main": "index.js",
+  "description": "A simple translation API",
   "module": "index.js",
   "type": "module",
   "scripts": {

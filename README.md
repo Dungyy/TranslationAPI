@@ -1,15 +1,98 @@
-# translationapi
+# Text Translator API 
 
-To install dependencies:
+A powerful, easy-to-use command-line tool & API Endpoint for translating text between languages using the Google Translate API. Designed for developers, researchers, and anyone in need of quick language translation, this project offers a straightforward way to integrate translation features into any project.
 
-```bash
-bun install
+## Features
+
+- **Wide Language Support:** Utilizes Google Translate to support a vast array of languages.
+- **Simple CLI Interface:** Offers an intuitive command-line interface for easy operation.
+- **Full-Word Language Specification:** Utilizes entire language names (e.g., "Spanish") instead of abbreviations, enhancing clarity.
+- **Seamless Integration:** Can be easily integrated into other Python scripts or web applications for dynamic translation services.
+
+## Getting Started
+
+Follow these instructions to get Text Translator running on your local machine for development and testing purposes.
+
+## Prerequisites
+
+- Python 3.6 or later
+- Node.js v14+
+- pip3 (Python Package Installer)
+
+## Installation
+
+1. ### Clone the Repository
+
+
+    ```sh
+   git clone https://github.com/yourusername/text-translator.git
+   cd text-translator
+    
+
+2. ### Download the dependencies
+
+   ```sh 
+   pip install -r requirements.txt
+   bun install
+
+## Usage
+
+### Python
+```sh
+python3 "<text_to_translate>" "<source_language>" "<target_language>"
+```
+```
+example: python3 text_translator.py "Hello, World!" "en" "es"
+```
+### NodeJs
+
+```sh
+const axios = require('axios');
+
+axios.post('http://localhost:5000/translate', {
+  text: 'Hello, World!',
+  srcLang: 'en',
+  destLang: 'es'
+})
+.then(response => {
+  console.log('Translated Text:', response.data.translatedText);
+})
+.catch(error => {
+  console.error('Error:', error.response.data);
+});
 ```
 
-To run:
+This sends a POST request to the translation endpoint, logging the translated text.
 
-```bash
-bun run index.js
+### Running the Bun API
+Start the Server: 
+```sh
+bun start
+```
+Translation Endpoint
+```sh
+http://localhost:5000/translate
 ```
 
-This project was created using `bun init` in bun v1.0.30. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Send a POST request to /translate with the following JSON body:
+
+```sh
+example: {
+  "text": "Hello, World!",
+  "srcLang": "en",
+  "destLang": "es"
+}
+```
+Using Curl 
+
+```sh
+curl -X POST http://localhost:5000/translate \
+-H "Content-Type: application/json" \
+-d '{"text": "Hello, World!", "srcLang": "en", "destLang": "es"}'
+
+```
+
+### Acknowledgments
+- Utilizes the [Google Translate API](https://pypi.org/project/googletrans) for comprehensive language translation capabilities.
+- Inspired by the global need for accessible, easy-to-integrate text translation tools.
+- A heartfelt thank you to the open-source community for continuous contributions and feedback.

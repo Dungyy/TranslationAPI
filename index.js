@@ -1,6 +1,8 @@
 import express from 'express';
 import { spawn } from 'child_process';
 import { json } from 'body-parser';
+import tmp from 'tmp';
+import fs from 'fs';
 import 'dotenv/config';
 
 const app = express();
@@ -35,31 +37,53 @@ const spawnAsync = (cmd, args) =>
     });
   });
 
-// POST endpoint for translation
 app.post('/translate', async (req, res) => {
   const { text, srcLang, destLang } = req.body;
 
-  // Check if all required parameters are provided
   if (!text || !srcLang || !destLang) {
     return res.status(400).send('Missing required parameters');
   }
 
-  try {
-    // Asynchronously call the Python script for translation
-    const translatedText = await spawnAsync('python3', [
-      'translate_script.py',
-      text,
-      srcLang,
-      destLang,
-    ]);
-    res.json({ translatedText: translatedText.trim() }); // Trim the text to remove any unwanted whitespace
-  } catch (error) {
-    console.error(`Error during translation: ${error.message}`);
-    res.status(500).send('Error during translation');
-  }
+  // Write text to a temporary file
+  tmp.file(
+    { prefix: 'translate-', postfix: '.txt' },
+    (err, path, fd, cleanupCallback) => {
+      if (err) {
+        return res.status(500).send('Failed to create temporary file');
+      }
+
+      fs.write(fd, text, async (err) => {
+        if (err) {
+          cleanupCallback();
+          return res.status(500).send('Failed to write to temporary file');
+        }
+
+        fs.close(fd, async (err) => {
+          if (err) {
+            cleanupCallback();
+            return res.status(500).send('Failed to close temporary file');
+          }
+
+          try {
+            const translatedText = await spawnAsync('python3', [
+              'translate_script.py',
+              path,
+              srcLang,
+              destLang,
+            ]);
+            cleanupCallback(); // Clean up the temporary file
+            res.json({ translatedText });
+          } catch (error) {
+            cleanupCallback(); // Ensure cleanup in case of error
+            console.error(`stderr: ${error.message}`);
+            return res.status(500).send('Error during translation');
+          }
+        });
+      });
+    },
+  );
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

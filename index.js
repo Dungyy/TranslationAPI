@@ -1,9 +1,10 @@
 import express from 'express';
 import { spawn } from 'child_process';
 import { json } from 'body-parser';
+import 'dotenv/config';
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 3000;
 
 // Set the body size limit to accommodate large texts
 app.use(json({ limit: '100mb' }));

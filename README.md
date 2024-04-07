@@ -2,6 +2,17 @@
 
 A powerful, easy-to-use command-line tool & API Endpoint for translating text between languages using the Google Translate API. Designed for developers, researchers, and anyone in need of quick language translation, this project offers a straightforward way to integrate translation features into any project.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
+
 ## Features
 
 - **Wide Language Support:** Utilizes Google Translate to support a vast array of languages.
@@ -92,7 +103,20 @@ curl -X POST http://localhost:5000/translate \
 
 ```
 
-### Acknowledgments
+### Credits
 - Utilizes the [Google Translate API](https://pypi.org/project/googletrans) for comprehensive language translation capabilities.
 - Inspired by the global need for accessible, easy-to-integrate text translation tools.
 - A heartfelt thank you to the open-source community for continuous contributions and feedback.
+
+## Contributing
+
+We welcome contributions to the PDF Merger project! Please consider contributing in the following ways:
+
+- Reporting a bug
+- Discussing the current state of the code
+- Submitting a fix
+- Proposing new features
+
+## License
+
+This project is open-source and available under the [MIT-License](MIT-LICENSE.txt). 

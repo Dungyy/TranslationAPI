@@ -36,7 +36,7 @@ Follow these instructions to get Text Translator running on your local machine f
 
 
     ```sh
-   git clone https://github.com/yourusername/text-translator.git
+   git clone https://github.com/dungyy/TranslationAPI.git
    cd text-translator
     
 

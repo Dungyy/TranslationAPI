@@ -1,89 +1,73 @@
-import express from 'express';
-import { spawn } from 'child_process';
-import { json } from 'body-parser';
-import tmp from 'tmp';
-import fs from 'fs';
-import 'dotenv/config';
+import { file } from 'tmp-promise';
+import { writeFile } from 'fs/promises';
 
-const app = express();
 const port = process.env.PORT || 5000;
 
-// Set the body size limit to accommodate large texts
-app.use(json({ limit: '100mb' }));
+Bun.serve({
+  port,
+  fetch(request) {
+    const { pathname } = new URL(request.url);
+    if (pathname === "/translate" && request.method === "POST") {
+      return handleTranslate(request);
+    }
+    return new Response("Not Found", { status: 404 });
+  },
+});
 
-// Function to handle the spawning of the Python process asynchronously
-const spawnAsync = (cmd, args) =>
-  new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { maxBuffer: 1024 * 1024 * 100 }); // Increase buffer size for stdout and stderr
-    let outputData = '';
-    let errorData = '';
-
-    child.stdout.on('data', (data) => {
-      outputData += data.toString();
-    });
-
-    child.stderr.on('data', (data) => {
-      errorData += data.toString();
-    });
-
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve(outputData);
-      } else {
-        reject(
-          new Error(`Spawn process exited with code ${code}: ${errorData}`),
-        );
-      }
-    });
-  });
-
-app.post('/translate', async (req, res) => {
-  const { text, srcLang, destLang } = req.body;
-
+async function handleTranslate(request) {
+  // Extract the JSON body from the request
+  const { text, srcLang, destLang } = await request.json();
   if (!text || !srcLang || !destLang) {
-    return res.status(400).send('Missing required parameters');
+    return new Response("Missing required parameters", { status: 400 });
   }
 
-  // Write text to a temporary file
-  tmp.file(
-    { prefix: 'translate-', postfix: '.txt' },
-    (err, path, fd, cleanupCallback) => {
-      if (err) {
-        return res.status(500).send('Failed to create temporary file');
-      }
+  try {
+    // Create a temporary file
+    const { path, cleanup } = await file({ prefix: 'translate-', postfix: '.txt' });
+    console.log(`Temporary file created at: ${path}`);
 
-      fs.write(fd, text, async (err) => {
-        if (err) {
-          cleanupCallback();
-          return res.status(500).send('Failed to write to temporary file');
+    // Write the text to the temporary file
+    await writeFile(path, text);
+
+    // Prepare the command for executing the Python script
+    const cmdArray = ['python3', 'translate_script.py', path, srcLang, destLang];
+    
+    // Spawn the Python subprocess with explicit stdout handling
+    // Short term for now
+    const proc = Bun.spawn(cmdArray, {
+      stdout: "pipe",
+      onExit(proc, exitCode, signalCode, error) {
+        // console.log(`Subprocess exited with code: ${exitCode}, signal: ${signalCode}`);
+        if (error) {
+          console.error(`Subprocess exit error: ${error}`);
         }
+      },
+    });
 
-        fs.close(fd, async (err) => {
-          if (err) {
-            cleanupCallback();
-            return res.status(500).send('Failed to close temporary file');
-          }
+    // Capture and log subprocess stdout
+    const stdoutText = await new Response(proc.stdout).text();
+    // translated text is stdoutText
+    // console.log(`Subprocess stdout: ${stdoutText}`);
 
-          try {
-            const translatedText = await spawnAsync('python3', [
-              'translate_script.py',
-              path,
-              srcLang,
-              destLang,
-            ]);
-            cleanupCallback(); // Clean up the temporary file
-            res.json({ translatedText });
-          } catch (error) {
-            cleanupCallback(); // Ensure cleanup in case of error
-            console.error(`stderr: ${error.message}`);
-            return res.status(500).send('Error during translation');
-          }
-        });
-      });
-    },
-  );
-});
+    await proc.exited; // Ensure subprocess has exited
+    console.log(`Subprocess for translation has exited successfully.`);
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+    // Cleanup the temporary file
+    await cleanup();
+    console.log(`Temporary file ${path}` + '\n' + 'Cleaned up successfully.');
+
+    // Return the translated text in the response
+    const translatedText = stdoutText; // translated text
+    return new Response(JSON.stringify({ translatedText }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error(`Error during translation: ${error.message}`);
+    return new Response("Error during translation", { status: 500 });
+  }
+}
+
+console.log(
+  `Server is live and running on port: http://localhost:${port}`
+)

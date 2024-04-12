@@ -43,7 +43,6 @@ Follow these instructions to get Text Translator running on your local machine f
 
    ```sh 
    python -m venv env
-
    source env/bin/activate
 
 2. ### Download the dependencies

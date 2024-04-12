@@ -38,7 +38,13 @@ Follow these instructions to get Text Translator running on your local machine f
     ```sh
    git clone https://github.com/dungyy/TranslationAPI.git
    cd text-translator
-    
+
+2. ### Use env for python packages
+
+   ```sh 
+   python -m venv env
+
+   source env/bin/activate
 
 2. ### Download the dependencies
 
@@ -119,4 +125,4 @@ We welcome contributions to the PDF Merger project! Please consider contributing
 
 ## License
 
-This project is open-source and available under the [MIT-License](MIT-LICENSE.txt). 
+This project is open-source and available for anyone to use at there own risk. 
